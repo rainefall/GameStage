@@ -4,10 +4,10 @@ using GameStage.State;
 
 namespace GameStage
 {
-	public class Application : Game
+	public class Engine : Game
 	{
 		// static reference to application class, the base of the entire engine
-		public static Application game;
+		public static Engine game;
 
 		// window manager
 		public GraphicsDeviceManager gdm;
@@ -21,12 +21,23 @@ namespace GameStage
 		private ECS.World wrld;
 
 		// create singleton game instance
-		static Application()
+		static Engine()
 		{
-			game = new Application();
+			Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
+			game = new Engine();
 		}
 
-		private Application()
+		public static void Init(Scene initScene, Action? preInit = null, Action? postInit = null)
+        {
+			if (preInit != null)
+				preInit();
+			game.RunOneFrame();
+			if (postInit != null)
+				postInit();
+			game.director.NewScene(initScene);
+		}
+
+		private Engine()
 		{
 			// setup graphics device
 			gdm = new GraphicsDeviceManager(this);
@@ -43,12 +54,6 @@ namespace GameStage
 		protected override void Initialize()
 		{
 			// todo, init engine
-			// this is just to test that returned entities are unique
-			ECS.Entity a = wrld.AddEntity();
-			Console.WriteLine("ent A: " + a.Id.ToString());
-			ECS.Entity b = wrld.AddEntity();
-			Console.WriteLine("ent A: " + a.Id.ToString());
-			Console.WriteLine("ent B: " + b.Id.ToString());
 
 			base.Initialize();
 		}
@@ -68,7 +73,7 @@ namespace GameStage
 		protected override void Draw(GameTime gameTime)
 		{
 			// render the compositor
-
+			compositor.Render(gameTime);
 
 			// render console
 #if DEBUG
